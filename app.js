@@ -1,14 +1,11 @@
+require('dotenv').config()
 const express = require('express')
-const app = express()
-const port = 3030
 const todosRouter = require('./route/router')
+
+const app = express()
+const port = process.env.PORT || 3030
 app.use('/todos', todosRouter)
 app.use(express.json()) // --> req.body
 
-
-
-//App listening port
-app.listen(port, () => [
-    console.log(`Apps listening on port: ${port}`)
-])
-
+// App listening port
+app.listen(PORT, () => [console.log(`Apps listening on: http://localhost:${PORT}`)])
