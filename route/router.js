@@ -21,7 +21,7 @@ router.post('/', async (req, res) => {
     )
     res.json(createTask)
   } catch (error) {
-    res.json(error)
+    res.json('Terjadi kesalahan')
     console.log(error)
   }
 })
