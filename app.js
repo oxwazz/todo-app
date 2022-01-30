@@ -3,7 +3,7 @@ const express = require('express')
 const todosRouter = require('./route/router')
 
 const app = express()
-const port = process.env.PORT || 3030
+const PORT = process.env.PORT || 3030
 app.use('/todos', todosRouter)
 app.use(express.json()) // --> req.body
 
