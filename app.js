@@ -8,6 +8,6 @@ app.use("/todos", todosRouter);
 app.use(express.json()); // --> req.body
 
 // App listening port
-app.listen(PORT, () => [
-  console.log(`Apps listening on: http://localhost:${PORT}`),
-]);
+app.listen(PORT, () => {
+  console.log(`Apps listening on: http://localhost:${PORT}`);
+});

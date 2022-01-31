@@ -1,7 +1,13 @@
 const express = require("express");
 const pool = require("../db");
 const router = express.Router();
+const cors = require("cors");
 router.use(express.json()); // --> req.body
+
+var corsOptions = {
+  origin: "*",
+};
+router.use(cors(corsOptions));
 
 // Create task = POST: localhost/todos <- data diambil dari body
 router.post("/", async (req, res) => {
@@ -39,7 +45,9 @@ router
          FROM tasks WHERE id=$1`,
         [id]
       );
-      getTask.rows == "" ? res.json(`Task id:${id} not found`) : res.json(getTask.rows);
+      getTask.rows == ""
+        ? res.json(`Task id:${id} not found`)
+        : res.json(getTask.rows);
     } catch (error) {
       res.json("There is an error!");
       console.log(error);
@@ -66,11 +74,17 @@ router
       const { date } = req.body;
       const { priority } = req.body;
       const { is_done } = req.body;
-      let firstQuery = `${name?"name="+"\'" + name + "\',":""}${description?"description="+"\'" + description + "\',":""}${date?"date="+"\'" + date + "\',":""}${priority?"priority="+"\'" + priority + "\',":""}${is_done?"is_done="+"\'" + is_done + "\',":""}`
+      let firstQuery = `${name ? "name=" + "'" + name + "'," : ""}${
+        description ? "description=" + "'" + description + "'," : ""
+      }${date ? "date=" + "'" + date + "'," : ""}${
+        priority ? "priority=" + "'" + priority + "'," : ""
+      }${is_done ? "is_done=" + "'" + is_done + "'," : ""}`;
       firstQuery = firstQuery.replace(/(\s*,?\s*)*$/, "");
-      let secondQuery = `UPDATE tasks SET ${firstQuery} WHERE id=${id} RETURNING *`
-      const updateTask = await pool.query(secondQuery)
-      updateTask.rows == "" ? res.json(`Task id:${id} not found`) : res.json('Task has been update')
+      let secondQuery = `UPDATE tasks SET ${firstQuery} WHERE id=${id} RETURNING *`;
+      const updateTask = await pool.query(secondQuery);
+      updateTask.rows == ""
+        ? res.json(`Task id:${id} not found`)
+        : res.json("Task has been update");
     } catch (error) {
       res.json("Task failed to update");
       console.log(error);
@@ -89,7 +103,9 @@ router
          WHERE id=$1`,
         [id]
       );
-      deleteTask.rowCount == 1 ? res.json(`Task id:${id} has been deleted`) : res.json(`Task id:${id} not found`)
+      deleteTask.rowCount == 1
+        ? res.json(`Task id:${id} has been deleted`)
+        : res.json(`Task id:${id} not found`);
     } catch (error) {
       res.json("Task failed to delete");
       console.log(error);
@@ -108,10 +124,14 @@ router.get("/", async (req, res) => {
   try {
     const { offset } = req.query;
     const { limit } = req.query;
-    const regQuery = `SELECT * FROM tasks;`
+    const regQuery = `SELECT * FROM tasks;`;
     const offsetLimitQuery = `SELECT id, name, description, date, priority, is_done FROM tasks 
-    ${offset ? "OFFSET" + " " + offset : ""} ${limit ? "LIMIT" + " " + limit : ""};`      
-    const getTask = await pool.query(offset !== undefined || limit !== undefined ? offsetLimitQuery : regQuery)
+    ${offset ? "OFFSET" + " " + offset : ""} ${
+      limit ? "LIMIT" + " " + limit : ""
+    };`;
+    const getTask = await pool.query(
+      offset !== undefined || limit !== undefined ? offsetLimitQuery : regQuery
+    );
     res.json(getTask.rows);
   } catch (error) {
     res.json("There is an error!");
