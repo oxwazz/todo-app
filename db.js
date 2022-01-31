@@ -1,5 +1,5 @@
-require('dotenv').config()
-const { Pool } = require('pg')
+require("dotenv").config();
+const { Pool } = require("pg");
 
 const pool = new Pool({
   user: process.env.USER_PG,
@@ -10,6 +10,6 @@ const pool = new Pool({
   ssl: {
     rejectUnauthorized: false,
   },
-})
+});
 
-module.exports = pool
+module.exports = pool;
