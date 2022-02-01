@@ -24,7 +24,6 @@ router.post("/", async (req, res) => {
     console.log(error);
   }
 });
-
 // Get task = GET: localhost/todos/1
 // Update task = PATCH: localhost/todos/1 <- data diambil dari body
 // Delete task = DELETE: localhost/todos/1
@@ -45,18 +44,6 @@ router
       console.log(error);
     }
   })
-
-  // TODO 1: bisa update task semua data tidak hanya
-  // description (bisa satu / beberapa data sekaligus)
-  //
-  // example:
-  //  1. update data description dan date
-  //  2. update data name saja
-  //  3. update data priority, name, is_done
-
-  // TODO 2: apabila id task tidak ada maka muncul
-  // keterangan "Task not found" / semacamnya
-
   // Update task = PATCH: localhost/todos/1 <- data diambil dari body
   .patch(async (req, res) => {
     try {
@@ -76,10 +63,6 @@ router
       console.log(error);
     }
   })
-
-  // TODO 1: apabila id task tidak ada maka muncul
-  // keterangan "Task not found" / semacamnya
-
   // Delete task = DELETE: localhost/todos/1
   .delete(async (req, res) => {
     try {
@@ -95,23 +78,16 @@ router
       console.log(error);
     }
   });
-
-// TODO 1: bisa memakai satu atau beberapa parameter
-//
-// example:
-//  1. GET: localhost/todos?offset=10
-//  2. GET: localhost/todos?limit=5
-//  3. GET: localhost/todos?offset=0&limit=5
-
-//Get all task & offset & limit = GET: localhost/todos?offset=2&limit=3
+ 
 router.get("/", async (req, res) => {
-  try {
+  try {  
+    const { filter } = req.query;
     const { offset } = req.query;
     const { limit } = req.query;
-    const regQuery = `SELECT * FROM tasks;`
-    const offsetLimitQuery = `SELECT id, name, description, date, priority, is_done FROM tasks 
-    ${offset ? "OFFSET" + " " + offset : ""} ${limit ? "LIMIT" + " " + limit : ""};`      
-    const getTask = await pool.query(offset !== undefined || limit !== undefined ? offsetLimitQuery : regQuery)
+    let filterData = (filter?filter.split(":").shift():"") 
+    let filterValue = (filter?filter.split(":").pop():"")
+    const baseQuery = `SELECT * FROM tasks ${filterData == 'is_done' ? "WHERE" + " " + filterData +  " " +"IS"+ " " + filterValue : "WHERE" + " "+ filterData +  " " +"ILIKE"+ " " + "'%" + filterValue + "%'"} ${offset ? "OFFSET" + " " + offset : ""} ${limit ? "LIMIT" + " " + limit : ""};`
+    const getTask = await pool.query(baseQuery)
     res.json(getTask.rows);
   } catch (error) {
     res.json("There is an error!");
