@@ -6,13 +6,9 @@ const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 user.use(express.json()) //--> req body
 
-//Middleware
-//user.use(auth)
-
 // Register --> user/register  
 user.post('/register', async (req, res) => {
   try {
-    
     const { username } = req.body
     const { email } = req.body
     const { password } = req.body
@@ -34,7 +30,6 @@ user.post('/register', async (req, res) => {
 user.post('/login', async (req, res) => {
   const { username } = req.body
   const { password } = req.body
-  //const accessToken = jwt.sign(username, process.env.REFRESH_TOKEN_SECRET)
   const usernameQuery = await pool.query (`SELECT * FROM users WHERE username = '${username}';`)
   const fill = usernameQuery.rows
   if (fill == false ) {
@@ -108,16 +103,5 @@ user.delete('/delete', async (req, res) => {
     console.log(error)
   }
 })
-
-
-function authenticateToken (req, res , next) {
-  if (req.query.admin === 'true') {
-    req.admin = true
-    next()
-    return 
-  }
-    res.send('No Auth')
-  
-}
   
 module.exports=user
