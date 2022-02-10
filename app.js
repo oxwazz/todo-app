@@ -17,6 +17,6 @@ app.use('*', (req, res) =>{   //--> Page not found handler 404
 })
 
 // App listening port
-app.listen(PORT, () => [
-  console.log(`Apps listening on: http://localhost:${PORT}`),
-]);
+app.listen(PORT, () => {
+  console.log(`Apps listening on: http://localhost:${PORT}`);
+});
