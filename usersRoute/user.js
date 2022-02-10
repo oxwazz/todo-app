@@ -41,7 +41,7 @@ user.post('/login', async (req, res) => {
     const object = getLogin.rows
     const getUser = object.find(({username}) => username)
     const userDetail = {username:getUser.username, email:getUser.email}
-    const accessToken = jwt.sign(userDetail, process.env.ACCESS_TOKEN_SECRET)
+    const accessToken = jwt.sign(userDetail, process.env.ACCESS_TOKEN_SECRET) //--Encode Acces Token
     const objetPass = object.find(({password}) => password)
     const getPass = objetPass.password
     if (await bcrypt.compare(password, getPass)) {

@@ -5,9 +5,6 @@ const router = express.Router();
 router.use(express.json()); // --> req.body
 const jwt = require("jsonwebtoken")
 
-//Middleware
-//router.use(logger)
-
 router
   .route("/")
   // Create task = POST: localhost/todos <- data diambil dari body
@@ -109,7 +106,6 @@ router
       AND tasks.task_id=${id} 
       AND users.username = '${req.user.username}' 
       AND users.email = '${req.user.email}';`
-      console.log(22312, baseQuery)
       const deleteTask = await pool.query(baseQuery);
       deleteTask.rowCount == 1 ? res.json(`Task_id:${id} has been deleted`) : res.json(`Task_id:${id} not found`)
     } catch (error) {
@@ -123,7 +119,7 @@ function authToken(req, res, next) {
   const authHeader = req.headers.authorization
   const token = authHeader.split(' ')[1]
   if (token == undefined) return res.sendStatus(401) 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decode) => {
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decode) => {  //--Decode Access Token
     if (err) res.sendStatus(403)
     req.user=decode
     next()
