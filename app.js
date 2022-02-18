@@ -1,12 +1,14 @@
 require("dotenv").config();
 const express = require("express");
-const todosRouter = require("./todosRoute/router");
-const userRouter = require("./usersRoute/user");
+const todosRoute = require("./routes/todos");
+const userRoute = require("./routes/user");
 const app = express();
-const PORT = process.env.PORT || 3030;
-app.use("/user", userRouter);
-app.use("/todos", todosRouter);
+const PORT = process.env.PORT || 8080;
+app.use("/user", userRoute);
+app.use("/todos", todosRoute);
 app.use(express.json()); // --> req.body
+
+
 
 app.use("*", (req, res) => {
   //--> Page not found handler 404
@@ -21,3 +23,5 @@ app.use("*", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Apps listening on: http://localhost:${PORT}`);
 });
+
+module.exports=app

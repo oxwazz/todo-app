@@ -1,9 +1,15 @@
-require("dotenv").config()
+require("dotenv").config();
 const express = require("express");
 const pool = require("../db");
 const router = express.Router();
 router.use(express.json()); // --> req.body
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
+// const cors = require("cors");
+
+// var corsOptions = {
+//   origin: "*",
+// };
+// router.use(cors(corsOptions));
 
 router
   .route("/")
@@ -11,19 +17,14 @@ router
   .post(async (req, res) => {
     try {
       console.log(3333, "post", req.body);
-      const { user_id } = req.body;
-      const { name } = req.body;
-      const { description } = req.body;
-      const { date } = req.body;
-      const { priority } = req.body;
-      const { is_done } = req.body;
+      const { user_id, name, description, date, priority, is_done } = req.body;
       const createTask = await pool.query(
         `INSERT INTO tasks (user_id, name, description, date, priority, is_done)
          VALUES ($1, $2, $3, $4, $5, $6)
          RETURNING *`,
         [user_id, name, description, date, priority, is_done]
       );
-      if(createTask.rowCount==undefined) return res.json('Task failed to add');
+      if (createTask.rowCount == undefined) return res.json('Task failed to add');
       res.json('Task added successfully');
 
     } catch (error) {
@@ -33,20 +34,17 @@ router
   }) //--- Middleware authToken berjalan
   // Get data todos?filter=description:halim&sortby=description:desc&limit=2&offset=1
   .get(authToken, async (req, res) => {
-    try {  
-      const { filter } = req.query;
-      const { offset } = req.query;
-      const { limit } = req.query;
-      const { sortby } = req.query;
-      let sortbyData = (sortby?sortby.split(":").shift():"") 
-      let sortbyValue = (sortby?sortby.split(":").pop():"") 
-      let filterData = (filter?filter.split(":").shift():"") 
-      let filterValue = (filter?filter.split(":").pop():"")
+    try {
+      const { filter, offset, limit, sortby } = req.query;
+      let sortbyData = (sortby ? sortby.split(":").shift() : "")
+      let sortbyValue = (sortby ? sortby.split(":").pop() : "")
+      let filterData = (filter ? filter.split(":").shift() : "")
+      let filterValue = (filter ? filter.split(":").pop() : "")
       const baseQuery = `SELECT task_id, tasks.user_id, name, description, date, priority, is_done FROM tasks 
       JOIN users ON users.user_id = tasks.user_id  
-      ${filterData == 'is_done' ? "WHERE" + " " + filterData +  " " +"IS"+ " " + filterValue : ""} 
-      ${filterData ? "WHERE" + " "+ filterData +  " " +"ILIKE"+ " " + "'%" + filterValue + "%'" :""}
-      ${"and username=" + "'" +req.user.username + "'" +  " " +"and email=" + "'" + req.user.email + "'"} 
+      ${filterData == 'is_done' ? "WHERE" + " " + filterData + " " + "IS" + " " + filterValue : ""} 
+      ${filterData ? "WHERE" + " " + filterData + " " + "ILIKE" + " " + "'%" + filterValue + "%'" : ""}
+      ${"and username=" + "'" + req.user.username + "'" + " " + "and email=" + "'" + req.user.email + "'"} 
       ${sortbyData ? "ORDER BY" + " " + sortbyData + " " + sortbyValue : ""} 
       ${offset ? "OFFSET" + " " + offset : ""} ${limit ? "LIMIT" + " " + limit : ""};`
       const getTask = await pool.query(baseQuery)
@@ -56,7 +54,7 @@ router
       console.log(error);
     }
   })
-  
+
 router
   //--- Middleware authToken berjalan
   .route("/:id")
@@ -79,16 +77,12 @@ router
   .patch(authToken, async (req, res) => {
     try {
       const { id } = req.params;
-      const { name } = req.body;
-      const { description } = req.body;
-      const { date } = req.body;
-      const { priority } = req.body;
-      const { is_done } = req.body;
-      let firstQuery = `${name?"name="+"\'" + name + "\',":""}${description?"description="+"\'" + description + "\',":""}${date?"date="+"\'" + date + "\',":""}${priority?"priority="+"\'" + priority + "\',":""}${is_done?"is_done="+"\'" + is_done + "\',":""}`
+      const { name, description, date, priority, is_done } = req.body;
+      let firstQuery = `${name ? "name=" + "\'" + name + "\'," : ""}${description ? "description=" + "\'" + description + "\'," : ""}${date ? "date=" + "\'" + date + "\'," : ""}${priority ? "priority=" + "\'" + priority + "\'," : ""}${is_done ? "is_done=" + "\'" + is_done + "\'," : ""}`
       firstQuery = firstQuery.replace(/(\s*,?\s*)*$/, ""); //delete comma
       let secondQuery = `UPDATE tasks SET ${firstQuery} FROM users
       WHERE tasks.user_id = users.user_id AND tasks.task_id=${id} AND users.username = '${req.user.username}' 
-      AND users.email = '${req.user.email}';` 
+      AND users.email = '${req.user.email}';`
       const updateTask = await pool.query(secondQuery)
       updateTask.rowCount == "" ? res.json(`Task_id:${id} not found`) : res.json('Task has been update')
     } catch (error) {
@@ -118,12 +112,13 @@ router
 function authToken(req, res, next) {
   const authHeader = req.headers.authorization
   const token = authHeader.split(' ')[1]
-  if (token == undefined) return res.sendStatus(401) 
+  if (token == undefined) return res.sendStatus(401)
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decode) => {  //--Decode Access Token
     if (err) res.sendStatus(403)
-    req.user=decode
+    req.user = decode
     next()
   })
 }
 
 module.exports = router;
+
