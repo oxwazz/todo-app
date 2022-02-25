@@ -4,12 +4,12 @@ const pool = require("../db");
 const router = express.Router();
 router.use(express.json()); // --> req.body
 const jwt = require("jsonwebtoken");
-// const cors = require("cors");
+const cors = require("cors");
 
-// var corsOptions = {
-//   origin: "*",
-// };
-// router.use(cors(corsOptions));
+var corsOptions = {
+  origin: "*",
+};
+router.use(cors(corsOptions));
 
 router
   .route("/")
